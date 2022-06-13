@@ -230,7 +230,7 @@ final class Directorist_Base
 			Directorist\Widgets\Init::instance();
 
 			// Models
-			self::$instance->listings    = wpWax\Directorist\Model\Listings::instance();
+			self::$instance->listings    = new wpWax\Directorist\Model\Listings();
 			self::$instance->search_form = wpWax\Directorist\Model\Search_Form::instance();
 
 			/*Extensions Link*/

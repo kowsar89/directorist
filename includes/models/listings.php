@@ -16,9 +16,6 @@ use ATBDP_Permalink;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Singletone object is available as 'directorist()->listings' throughout
- * the site, much like global variable.
- *
  * To use it effectively, you must call the setup_data() method at
  * the begining before using any other methods of this class, and then at the end
  * you must use the reset_data() method to reset all data to the default state.
@@ -65,20 +62,8 @@ class Listings {
 	/**
 	 * Constructor.
 	 */
-	private function __construct() {
+	public function __construct() {
 
-	}
-
-	/**
-	 * Singleton instance.
-	 *
-	 * @return object Listings instance.
-	 */
-	public static function instance() {
-		if ( null == self::$instance ) {
-			self::$instance = new self;
-		}
-		return self::$instance;
 	}
 
 	/**
@@ -106,7 +91,7 @@ class Listings {
 
 
 	/**
-	 * Build data using plugin settings and shortcode attributes.
+	 * Build data based on plugin settings and shortcode attributes.
 	 *
 	 * @param array $args
 	 *
