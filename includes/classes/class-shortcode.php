@@ -75,7 +75,7 @@ class ATBDP_Shortcode {
 	public function all_listings( $atts ) {
 		$listings = directorist()->listings;
 
-		$listings->setup_data( ['shortcode_atts' => $atts] );
+		$listings->init( ['shortcode_atts' => $atts] );
 
 		if ( !empty( $listings->redirect_page_url() ) ) {
 			$contents = Helper::redirection_html( $listings->redirect_page_url() );
@@ -85,7 +85,7 @@ class ATBDP_Shortcode {
 			$contents =  Helper::get_template_contents( 'archive-contents' );
 		}
 
-		$listings->reset_data();
+		$listings->reset();
 
 		return $contents;
 	}
