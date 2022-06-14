@@ -24,6 +24,13 @@ class Listings {
 	use Deprecated_Listings;
 
 	/**
+	 * Shortcode attributes.
+	 *
+	 * @var array
+	 */
+	public $shortcode_atts;
+
+	/**
 	 * Data is based on shortcode attributes and settings.
 	 *
 	 * @var array
@@ -63,9 +70,10 @@ class Listings {
 
 		$args = wp_parse_args( $args, $defaults );
 
+		$this->shortcode_atts = $args['shortcode_atts'];
 		$this->instant_search = $args['instant_search'];
 
-		$this->data  = apply_filters( 'directorist_all_listings_data', $this->build_data( $args['shortcode_atts'] ), $args );
+		$this->data  = apply_filters( 'directorist_all_listings_data', $this->build_data(), $args );
 		$this->query = apply_filters( 'directorist_all_listings_query', $this->build_query( $args['query_args'] ), $args );
 	}
 
@@ -88,7 +96,8 @@ class Listings {
 	 *
 	 * @return array
 	 */
-	private function build_data( $shortcode_atts ) {
+	private function build_data() {
+		$shortcode_atts = $this->shortcode_atts;
 		$options = $this->is_search_result_page() ? $this->get_search_result_page_options() : $this->get_all_listing_page_options();
 
 		$shortcode_data = $this->get_shortcode_atts( $shortcode_atts, $options );
@@ -2522,8 +2531,8 @@ class Listings {
 	 * @todo new/refactor
 	 */
 	public function data_atts() {
-		// Separates class names with a single space, collates class names for wrapper tag element.
-		echo 'data-atts="' . esc_attr( json_encode( $this->data ) ) . '"';
+		$atts = json_encode( $this->shortcode_atts ) ? $this->shortcode_atts : '';
+		echo 'data-atts="' . esc_attr( $atts ) . '"';
 	}
 
 }
