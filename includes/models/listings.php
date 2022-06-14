@@ -44,6 +44,9 @@ class Listings {
 	 */
 	public $current_field;
 
+	/**
+	 * @todo refactor
+	 */
 	public $instant_search;
 
 	/**
