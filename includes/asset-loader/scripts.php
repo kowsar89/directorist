@@ -171,11 +171,6 @@ class Scripts {
 				'type' => 'js',
 				'path' => DIRECTORIST_VENDOR_JS . 'tooltip',
 			],
-			'directorist-range-slider' => [
-				'type' => 'js',
-				'path' => DIRECTORIST_VENDOR_JS . 'range-slider',
-				'rtl'  => true,
-			],
 			'directorist-ez-media-uploader' => [
 				'type' => 'js',
 				'path' => DIRECTORIST_VENDOR_JS . 'ez-media-uploader',
@@ -220,6 +215,11 @@ class Scripts {
 			'directorist-search-form' => [
 				'type' => 'js',
 				'path' => DIRECTORIST_JS . 'search-form',
+			],
+			'directorist-range-slider' => [
+				'type' => 'js',
+				'path' => DIRECTORIST_JS . 'range-slider',
+				'rtl'  => true,
 			],
 			'directorist-dashboard' => [
 				'type' => 'js',

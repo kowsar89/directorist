@@ -7,6 +7,7 @@ module.exports = {
         ['checkout']: ["./assets/src/js/public/checkout.js"],
         ['search-form']: ["./assets/src/js/public/search-form.js"],
         ['range-slider']: ["./assets/src/js/public/range-slider.js"],
+        ['range-slider.rtl']: ["./assets/src/js/public/range-slider.rtl.js"],
 
         //Pages
         ['all-listings']: ["./assets/src/js/public/modules/all-listings.js"],
