@@ -46,7 +46,7 @@ if ( ! class_exists( 'ATBDP_Listings_Data_Store' ) ) :
             ]);
         }
 
-        // get_listings_query
+        // get_listings_query @remove
         public static function get_listings_query( array $args = [] ) {
             return ATBDP_Cache_Helper::get_the_transient([
                 'group'      => 'atbdp_listings_query',
@@ -107,7 +107,7 @@ if ( ! class_exists( 'ATBDP_Listings_Data_Store' ) ) :
             return self::get_archive_listings_query( $query_args );
         }
 
-        // get_favourite_listings
+        // get_favourite_listings @remove
         public static function get_favourite_listings( $user_id = 0 ) {
 			$user_id = absint( $user_id );
 			if ( ! $user_id ) {
