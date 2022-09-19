@@ -1,8 +1,9 @@
 <?php
 /**
- * @author wpWax
- *
  * Avoiding PHP fatal errors when using deprecated classes
+ *
+ * @author wpWax
+ * @since 7.4.0
  */
 
 namespace Directorist;
