@@ -610,6 +610,15 @@ class Directorist_Listings {
 				}
 				break;
 
+			case 'views-desc':
+				if ( 'average_rating' === $this->popular_by ) {
+
+				} elseif ( 'view_count' === $this->popular_by ) {
+
+				} else {
+
+				}
+
 			case 'price-asc':
 				if ( $this->has_featured ) {
 					$meta_queries['price'] = array(
