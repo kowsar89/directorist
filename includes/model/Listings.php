@@ -13,6 +13,7 @@ use WP_Query;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Directorist_Listings {
+
 	public $query_args = [];
 	public $query_results = [];
 	public $options = [];
@@ -142,6 +143,250 @@ class Directorist_Listings {
 
 		$this->query_results = $this->get_query_results( $caching_options );
 	}
+
+
+	public function setup_data( $args = [] ) {
+		$defaults = [
+			'shortcode_atts' => '',
+			'query_args'     => [],
+			'instant_search' => false,
+		];
+
+		$args = wp_parse_args( $args, $defaults );
+
+		$this->instant_search = $args['instant_search'];
+
+		$this->data  = apply_filters( 'directorist_all_listings_data', $this->build_data( $args['shortcode_atts'] ), $args );
+		$this->query = apply_filters( 'directorist_all_listings_query', $this->build_query( $args['query_args'] ), $args );
+	}
+
+	/**
+	 * Build data using plugin settings and shortcode attributes.
+	 *
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	private function build_data( $shortcode_atts ) {
+		$options = $this->is_search_result_page() ? $this->get_search_result_page_options() : $this->get_all_listing_page_options();
+
+		$shortcode_data = $this->get_shortcode_atts( $shortcode_atts, $options );
+
+		$data = [
+			'view'                          => $shortcode_data['view'],
+			'orderby'                       => $shortcode_data['orderby'],
+			'order'                         => $shortcode_data['order'],
+			'listings_per_page'             => $shortcode_data['listings_per_page'],
+			'show_pagination'               => $shortcode_data['show_pagination'],
+			'header'                        => $shortcode_data['header'],
+			'header_title'                  => $shortcode_data['header_title'],
+			'category'                      => $shortcode_data['category'],
+			'location'                      => $shortcode_data['location'],
+			'tag'                           => $shortcode_data['tag'],
+			'ids'                           => $shortcode_data['ids'],
+			'columns'                       => $shortcode_data['columns'],
+			'featured_only'                 => $shortcode_data['featured_only'],
+			'popular_only'                  => $shortcode_data['popular_only'],
+			'display_preview_image'         => $shortcode_data['display_preview_image'],
+			'advanced_filter'               => $shortcode_data['advanced_filter'],
+			'logged_in_user_only'           => $shortcode_data['logged_in_user_only'],
+			'redirect_page_url'             => $shortcode_data['redirect_page_url'],
+			'map_height'                    => $shortcode_data['map_height'],
+			'map_zoom_level'		        => $shortcode_data['map_zoom_level'],
+			'directory_type'	            => $shortcode_data['directory_type'],
+			'default_directory_type'        => $shortcode_data['default_directory_type'],
+			'instant_search'   	   	        => $shortcode_data['instant_search'],
+			'radius_search_based_on'        => $shortcode_data['radius_search_based_on'],
+			'filter_open_method'            => $options['filter_open_method'],
+			'display_sort_by'               => $options['display_sort_by'],
+			'display_view_as'               => $options['display_view_as'],
+			'listings_filter_button_text'   => $options['listings_filter_button_text'],
+			'sort_by_text'                  => $options['sort_by_text'],
+			'view_as_text'                  => $options['view_as_text'],
+			'listings_view_as_items'        => $options['listings_view_as_items'],
+			'listings_sort_by_items'        => $options['listings_sort_by_items'],
+		];
+
+		return $data;
+	}
+
+	/**
+	 * Build query using $this->data property.
+	 *
+	 * @param array $args
+	 *
+	 * @return object WP_Query object
+	 */
+	private function build_query( $query_args ) {
+		if ( empty( $query_args ) ) {
+			$query_args = $this->is_search_result_page() || $this->instant_search || ! empty( $_GET ) ? $this->parse_search_query_args() : $this->parse_query_args();
+		} else {
+			$query_args = $query_args;
+		}
+
+		return $this->get_query_results( $query_args )->query;
+	}
+
+	/**
+	 * Options for All Listing oage.
+	 *
+	 * @return array
+	 */
+	public function get_all_listing_page_options() {
+		$options = [
+			'order_listing_by'                => get_directorist_option( 'order_listing_by', 'date' ),
+			'sort_listing_by'                 => get_directorist_option( 'sort_listing_by', 'asc' ),
+			'listings_per_page'               => get_directorist_option( 'all_listing_page_items', 6 ),
+			'paginate_listings'               => ! empty( get_directorist_option( 'paginate_all_listings', 1 ) ) ? 'yes' : '',
+			'listing_columns'                 => get_directorist_option( 'all_listing_columns', 3 ),
+			'display_listings_header'         => ! empty( get_directorist_option( 'display_listings_header', 1 ) ) ? 'yes' : '',
+			'listing_filters_button'          => ! empty( get_directorist_option( 'listing_filters_button', 1 ) ) ? 'yes' : '',
+			'listings_filter_button_text'     => get_directorist_option( 'listings_filter_button_text', __( 'Filters', 'directorist' ) ),
+			'filter_open_method'              => get_directorist_option( 'home_display_filter', 'sliding' ),
+			'display_sort_by'                 => get_directorist_option( 'display_sort_by', 1 ) ? true : false,
+			'sort_by_text'                    => get_directorist_option( 'sort_by_text', __( 'Sort By', 'directorist' ) ),
+			'listings_sort_by_items'          => get_directorist_option( 'listings_sort_by_items', array( 'a_z', 'z_a', 'latest',  'popular', 'price_low_high', 'price_high_low', 'random' ) ),
+			'display_view_as'                 => get_directorist_option( 'display_view_as', 1 ),
+			'view_as_text'                    => get_directorist_option( 'view_as_text', __( 'View As', 'directorist' ) ),
+			'listings_view_as_items'          => get_directorist_option( 'listings_view_as_items', array( 'listings_grid', 'listings_list', 'listings_map' ) ),
+		];
+
+		return $options;
+	}
+
+	/**
+	 * Options for Search result page.
+	 *
+	 * @return array
+	 */
+	public function get_search_result_page_options() {
+		$options = [
+			'order_listing_by'                => get_directorist_option( 'search_order_listing_by', 'date' ),
+			'sort_listing_by'                 => get_directorist_option( 'search_sort_listing_by', 'asc' ),
+			'listings_per_page'               => get_directorist_option( 'search_posts_num', 6 ),
+			'paginate_listings'               => ! empty( get_directorist_option( 'paginate_search_results', 1 ) ) ? 'yes' : '',
+			'listing_columns'                 => get_directorist_option( 'search_listing_columns', 3 ),
+			'display_listings_header'         => ! empty( get_directorist_option( 'search_header', 1 ) ) ? 'yes' : '',
+			'listing_filters_button'          => ! empty( get_directorist_option( 'search_result_filters_button_display', 1 ) ) ? 'yes' : '',
+			'listings_filter_button_text'     => get_directorist_option( 'search_result_filter_button_text', __( 'Filters', 'directorist' ) ),
+			'filter_open_method'              => get_directorist_option( 'search_result_display_filter', 'sliding' ),
+			'display_sort_by'                 => get_directorist_option( 'search_sort_by', 1 ) ? true : false,
+			'sort_by_text'                    => get_directorist_option( 'search_sortby_text', __( 'Sort By', 'directorist' ) ),
+			'listings_sort_by_items'          => get_directorist_option( 'search_sort_by_items', array( 'a_z', 'z_a', 'latest',  'popular', 'price_low_high', 'price_high_low', 'random' ) ),
+			'display_view_as'                 => get_directorist_option( 'search_view_as', 1 ),
+			'view_as_text'                    => get_directorist_option( 'search_viewas_text', __( 'View As', 'directorist' ) ),
+			'listings_view_as_items'          => get_directorist_option( 'search_view_as_items', array( 'listings_grid', 'listings_list', 'listings_map' ) ),
+		];
+
+		return $options;
+	}
+
+	/** Check if current page is search result page or not.
+	 *
+	 * @return bool
+	 */
+	public function is_search_result_page() {
+		return atbdp_is_page( 'search_result' );
+	}
+
+	/**
+	 * @todo refactor
+	 */
+	public function radius_search_based_on() {
+		$key = 'radius_search';
+		$value = 'radius_search_based_on';
+		$search_form_fields = get_term_meta( $this->current_directory_type_id(), 'search_form_fields', true );
+		return ! empty( $search_form_fields['fields'][ $key ][ $value ] ) ? $search_form_fields['fields'][ $key ][ $value ] : 'address';
+	}
+
+	/**
+	 * Shortcode attrubutes.
+	 *
+	 * @param array $atts
+	 * @param array $options
+	 *
+	 * @return array
+	 */
+	public function get_shortcode_atts( $atts = [], $options ) {
+		$defaults = [
+			'view'                     => get_directorist_option( 'default_listing_view', 'grid' ),
+			'orderby'                  => $options['order_listing_by'],
+			'order'                    => $options['sort_listing_by'],
+			'listings_per_page'        => $options['listings_per_page'],
+			'show_pagination'          => $options['paginate_listings'],
+			'header'                   => $options['display_listings_header'],
+			'header_title'             => get_directorist_option( 'all_listing_title', __( 'Items Found', 'directorist' ) ),
+			'category'                 => '',
+			'location'                 => '',
+			'tag'                      => '',
+			'ids'                      => '',
+			'columns'                  => $options['listing_columns'],
+			'featured_only'            => '',
+			'popular_only'             => '',
+			'display_preview_image'    => 'yes',
+			'advanced_filter'          => $options['listing_filters_button'],
+			'logged_in_user_only'      => '',
+			'redirect_page_url'        => '',
+			'map_height'               => get_directorist_option( 'listings_map_height', 350 ),
+			'map_zoom_level'		   => get_directorist_option( 'map_view_zoom_level', 16 ),
+			'directory_type'	       => '',
+			'default_directory_type'   => '',
+			'instant_search'   	   	   => get_directorist_option( 'listing_instant_search' ),
+			'radius_search_based_on'   => $this->radius_search_based_on()
+		];
+
+		return shortcode_atts( $defaults, $atts );
+	}
+
+		/**
+	 * @return int
+	 */
+	public function current_directory_type_id() {
+		$types = $this->allowed_directory_types();
+
+		$current = !empty( $types[0] ) ? $types[0]->term_id : '';
+
+		if ( isset( $_REQUEST['directory_type'] ) ) {
+			$current = $_REQUEST['directory_type'];
+		}
+		else if( !empty( $this->data['default_directory_type'] ) ) {
+			$current = $this->data['default_directory_type'];
+		}
+		else {
+			foreach ( $types as $term ) {
+				$is_default = get_term_meta( $term->term_id, '_default', true );
+
+				if ( $is_default ) {
+					$current = $term->term_id;
+					break;
+				}
+			}
+		}
+
+		if( ! is_numeric( $current ) ) {
+			$term = get_term_by( 'slug', $current, ATBDP_TYPE );
+			$current = $term->term_id;
+		}
+
+		return (int) $current;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function allowed_directory_types() {
+		$args = array(
+			'taxonomy'   => ATBDP_TYPE,
+			'hide_empty' => false
+		);
+
+		if( !empty( $this->data['directory_type'] ) ) {
+			$args['slug'] = explode( ',', $this->data['directory_type'] );
+		}
+
+		return get_terms( $args );
+	}
+
 
 	// set_options
 	public function set_options() {
