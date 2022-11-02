@@ -165,7 +165,20 @@ class Directorist_Listings {
 		$this->instant_search = $args['instant_search'];
 
 		$this->data  = apply_filters( 'directorist_all_listings_data', $this->build_data( $args['shortcode_atts'] ), $args );
-		$this->query = apply_filters( 'directorist_all_listings_query', $this->build_query( $args['query_args'] ), $args );
+
+		$query_args = $args['query_args'];
+		if ( empty( $query_args ) ) {
+			$query_args = $this->is_search_result_page() || $this->instant_search || ! empty( $_GET ) ? $this->parse_search_query_args() : $this->parse_query_args();
+		} else {
+			$query_args = $query_args;
+		}
+
+		$this->query_args = $query_args;
+		$this->query_results = $this->get_query_results( $this->query_args );
+		e_var_dump($this->query_args);
+
+		$this->listing_types              = $this->get_listing_types();
+		$this->current_listing_type       = $this->get_current_listing_type();
 	}
 
 	/**
@@ -216,23 +229,6 @@ class Directorist_Listings {
 		];
 
 		return $data;
-	}
-
-	/**
-	 * Build query using $this->data property.
-	 *
-	 * @param array $args
-	 *
-	 * @return object WP_Query object
-	 */
-	private function build_query( $query_args ) {
-		if ( empty( $query_args ) ) {
-			$query_args = $this->is_search_result_page() || $this->instant_search || ! empty( $_GET ) ? $this->parse_search_query_args() : $this->parse_query_args();
-		} else {
-			$query_args = $query_args;
-		}
-
-		return $this->get_query_results( $query_args )->query;
 	}
 
 	/**
