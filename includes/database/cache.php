@@ -34,12 +34,12 @@ class Object_Cache {
 	}
 
 	public static function flush_listings() {
-		$group = self::get_group( 'listings' );
-		if ( wp_cache_supports( 'flush_group' ) ) {
-			wp_cache_flush_group( $group );
-		} else {
+		// $group = self::get_group( 'listings' );
+		// if ( wp_cache_supports( 'flush_group' ) ) {
+		// 	wp_cache_flush_group( $group );
+		// } else {
 
-		}
+		// }
 
 	}
 
